@@ -1,22 +1,29 @@
 Model.InstanceMethods = {
   attr: function(name, value) {
+    var self = this;
+    var setAttr = function (name, value) {
+      // Don't write to attributes yet, store in changes for now.
+      if (_.isEqual(self.attributes[name], value)) {
+        // Clean up any stale changes.
+        delete self.changes[name];
+      } else {
+        self.changes[name] = value;
+      }
+    };
+    
     if (arguments.length === 0) {
       // Combined attributes/changes object.
       return jQuery.extend({}, this.attributes, this.changes);
     } else if (arguments.length === 2) {
-      // Don't write to attributes yet, store in changes for now.
-      if (_.isEqual(this.attributes[name], value)) {
-        // Clean up any stale changes.
-        delete this.changes[name];
-      } else {
-        this.changes[name] = value;
-      }
+      setAttr(name, value);
+      this.trigger("change");
       return this;
     } else if (typeof name === "object") {
       // Mass-assign attributes.
       for (var key in name) {
-        this.attr(key, name[key]);
+        setAttr(key, name[key]);
       }
+      this.trigger("change");
       return this;
     } else {
       // Changes take precedent over attributes.

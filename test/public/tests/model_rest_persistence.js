@@ -301,11 +301,12 @@ test("events", function() {
 
   stop();
 
+  // change event is fired when merging the attributes returned from the server.
   post.save(function() {
-    same(events.join(", "), "create");
+    same(events.join(", "), "change, create");
 
     post.save(function() {
-      same(events.join(", "), "create, update");
+      same(events.join(", "), "change, create, change, update");
       start();
     });
   });
