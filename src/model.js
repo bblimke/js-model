@@ -7,6 +7,7 @@ var Model = function(name, class_methods, instance_methods) {
     this.attributes = attributes || {};
     this.callbacks = {}
     this.changes = {};
+    this.callbacks = [];
     this.errors = new Model.Errors(this);
   };
 

@@ -86,6 +86,7 @@ test("instance-level", function() {
   post.attributes.id = 1;
   post.save();
   post.trigger("custom", [1, 2]);
+  post.attr('title', 'changed')
   post.destroy();
 
   same(results, [
@@ -96,6 +97,40 @@ test("instance-level", function() {
     post, "destroy"
   ]);
 });
+
+test("triggering changed event when an instance changes", function () {
+  var Post = Model("post");
+
+  var post = new Post({title: 'blah'})
+  var changeFlag = false
+
+  post.bind('change', function () {
+    changeFlag = true
+  })
+
+  ok(!changeFlag)
+
+  // event should be fired when changing an existing attribute
+  changeFlag = false
+  post.attr('title', 'qwerty')
+  ok(changeFlag, "change callback not fired")
+
+  // event should be fired when adding a new attribute
+  changeFlag = false
+  post.attr('new_attr', 'still a change')
+  ok(changeFlag, "change callback not fired")
+
+  // event should be fired when mass assigning
+  changeFlag = false
+  post.attr({'mass': 'assignment', 'is': 'fun'})
+  ok(changeFlag, "change callback not fired")
+
+  // don't fire change event when not changing attrs
+  changeFlag = false
+  post.attr()
+  ok(!changeFlag, "change callback fired when it shouldn't")
+
+})
 
 test('instance events should only trigger on a specific instance', function () {
   var Post = Model('post')
